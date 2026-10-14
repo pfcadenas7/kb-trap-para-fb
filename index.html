@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkyRoute | Flight booking keyboard trap test</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,Arial,sans-serif;color:#17233c;background:#f2f6fc}header{background:#112b58;color:white;padding:18px max(24px,calc((100vw - 1080px)/2))}header a{color:white;margin-right:24px}main{max-width:1080px;margin:45px auto;padding:0 20px}h1{font-size:2.2rem;margin-bottom:6px}.subtitle{color:#475569;margin-bottom:28px}.panel{background:white;padding:30px;border-radius:16px;box-shadow:0 8px 28px #132a4a18}.fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}label{font-weight:700;display:block;margin-bottom:8px}input{width:100%;font:inherit;padding:14px 10px;border:2px solid #6d7c91;border-radius:8px;background:#fff}input:focus-visible,button:focus-visible,a:focus-visible{outline:4px solid #e28a00;outline-offset:3px}button{font:inherit;background:#174a9a;color:#fff;border:0;border-radius:8px;padding:13px 25px;cursor:pointer;margin-top:24px}.note{margin-top:28px;border-left:5px solid #b45309;background:#fff7ed;padding:16px}footer{padding:32px;text-align:center}footer a{color:#174a9a}@media(max-width:760px){.fields{grid-template-columns:1fr 1fr}}@media(max-width:450px){.fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><strong>✈ SkyRoute</strong><nav aria-label="Site navigation"><a href="#main">Book flights</a><a href="#about">About</a></nav></header>
+<main id="main"><h1>Find your next flight</h1><p class="subtitle">Choose your route and travel details.</p>
+<section class="panel" aria-labelledby="booking-heading"><h2 id="booking-heading">Search flights</h2>
+<form id="booking-form" action="#results">
+<div class="fields" id="trap-fields">
+<div><label for="origin">Origin</label><input id="origin" name="origin" value="Santiago (SCL)" autocomplete="off"></div>
+<div><label for="destination">Destination</label><input id="destination" name="destination" value="Madrid (MAD)" autocomplete="off"></div>
+<div><label for="dates">Dates</label><input id="dates" name="dates" value="20 Oct – 28 Oct" autocomplete="off"></div>
+<div><label for="passengers">Passengers</label><input id="passengers" name="passengers" value="1 adult" autocomplete="off"></div>
+</div>
+<button type="submit">Search Flights</button>
+</form></section>
+<section class="note" id="about"><h2>Accessibility QA test scenario</h2><p><strong>Intentional keyboard trap:</strong> after focus enters Origin, Tab and Shift+Tab cycle exclusively among Origin, Destination, Dates, and Passengers. No widget or dialog opens. Escape does not release focus. The Search Flights button cannot be reached with Tab from these controls.</p><p>Expected failure: WCAG 2.1.2 No Keyboard Trap (Level A).</p></section>
+<section id="results" aria-label="Search results"><h2>Flight search results</h2><p>Demo only. No actual booking is performed.</p></section>
+</main><footer><a href="#main">Back to flight search</a></footer>
+<script>
+(() => {
+  const ids = ['origin','destination','dates','passengers'];
+  const fields = ids.map(id => document.getElementById(id));
+  fields.forEach((field, index) => field.addEventListener('keydown', event => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const next = event.shiftKey ? (index + fields.length - 1) % fields.length : (index + 1) % fields.length;
+      fields[next].focus();
+    }
+    // Escape intentionally does not release the keyboard trap.
+  }));
+  document.getElementById('booking-form').addEventListener('submit', e => e.preventDefault());
+})();
+</script>
+</body></html>
